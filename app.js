@@ -5,7 +5,9 @@ const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const productsRoutes = require("./routes/productsRoutes");
-const ProductModel = require("./models/Product");
+const cartRouts = require("./routes/cartRoutes");
+const authenticationMiddleware = require("./middleware/authenticationMiddleware");
+const CartModel = require("./models/Cart");
 const errorHandlerMiddleware = require("./middleware/errorHandlerMiddleware");
 
 dotenv.config();
@@ -15,15 +17,14 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productsRoutes);
+app.use("/api/cart", [authenticationMiddleware], cartRouts);
 app.use("/eshop/testing", async (request, response) => {
-  const products = await ProductModel.find(
-    { $text: { $search: "addidas football" } },
-    { score: { $meta: "textScore" } }
-  ).sort({ score: { $meta: "textScore" } });
-  response.json({
-    count: products.length,
-    products,
+  const cart = await CartModel.findOneOrCreate({
+    user: "628696ca825e8bef06812987",
   });
+  cart.products.push({ product: "6288ea7b385f84683a85f6ed" });
+  await cart.save();
+  response.send({ cart });
 });
 app.use((request, response) => {
   response.status(404).send("Route not found");
