@@ -1,5 +1,12 @@
 const CartModel = require("../models/Cart");
 
+const getCart = async (request, response) => {
+  const cart = await CartModel.findOneOrCreate({
+    user: request.user._id,
+  });
+  response.json({ cart });
+};
+
 const addProductToCart = async (request, response) => {
   const { productID } = request.body;
   if (!productID) {
@@ -12,7 +19,7 @@ const addProductToCart = async (request, response) => {
   //   );
   const cart = await CartModel.findOneOrCreate({ user: request.user._id });
   const alreadyAddedProduct = cart.products.find(
-    (cartProd) => cartProd.product.toString() == productID
+    (cartProd) => cartProd.product._id.toString() == productID
   );
   if (alreadyAddedProduct) {
     alreadyAddedProduct.quantity += 1;
@@ -23,4 +30,4 @@ const addProductToCart = async (request, response) => {
   response.send({ cart });
 };
 
-module.exports = { addProductToCart };
+module.exports = { addProductToCart, getCart };
