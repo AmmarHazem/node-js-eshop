@@ -11,8 +11,12 @@ const CartSchema = new mongoose.Schema(
     },
     products: [CartProductSchema],
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+CartSchema.virtual("productsCount").get(function () {
+  return this.products.length;
+});
 
 CartSchema.statics.findOneOrCreate = async function (query) {
   const existingCart = await this.model("Cart")
