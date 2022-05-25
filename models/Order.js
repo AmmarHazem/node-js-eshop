@@ -12,7 +12,8 @@ const OrderSchema = new mongoose.Schema({
     required: true,
   },
   address: {
-    type: Object,
+    type: mongoose.Types.ObjectId,
+    ref: "UserAddress",
     required: true,
   },
   status: {
