@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRoutes");
 const productsRoutes = require("./routes/productsRoutes");
 const cartRouts = require("./routes/cartRoutes");
 const userAddressRoutes = require("./routes/userAddressRoutes");
+const orderRoutes = require("./routes/ordersRoutes");
 const authenticationMiddleware = require("./middleware/authenticationMiddleware");
 const CartModel = require("./models/Cart");
 const errorHandlerMiddleware = require("./middleware/errorHandlerMiddleware");
@@ -20,6 +21,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/cart", [authenticationMiddleware], cartRouts);
 app.use("/api/user-address", [authenticationMiddleware], userAddressRoutes);
+app.use("/api/orders", [authenticationMiddleware], orderRoutes);
 
 app.use("/eshop/testing", async (request, response) => {
   const cart = await CartModel.findOne({
