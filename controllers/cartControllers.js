@@ -1,5 +1,20 @@
 const CartModel = require("../models/Cart");
 
+const removeProductFromCart = async (request, response) => {
+  const { cartProductID } = request.body;
+  if (!cartProductID) {
+    throw new Error("cart product ID is required");
+  }
+  const cart = await CartModel.findOneOrCreate({ user: request.user._id });
+  const cartProduct = cart.products.id(cartProductID);
+  if (!cartProduct) {
+    throw new Error("invalid product ID");
+  }
+  cartProduct.remove();
+  await cart.save();
+  response.json({ cart });
+};
+
 const setCartProductQuantity = async (request, response) => {
   const { cartProductID, quantity } = request.body;
   if (!cartProductID) {
@@ -38,7 +53,7 @@ const getCart = async (request, response) => {
 };
 
 const addProductToCart = async (request, response) => {
-  const { productID } = request.body;
+  const { productID, quantity } = request.body;
   if (!productID) {
     throw new Error("invalid product ID");
   }
@@ -52,12 +67,21 @@ const addProductToCart = async (request, response) => {
     (cartProd) => cartProd.product._id.toString() == productID
   );
   if (alreadyAddedProduct) {
-    alreadyAddedProduct.quantity += 1;
+    if (quantity) {
+      alreadyAddedProduct.quantity = quantity;
+    } else {
+      alreadyAddedProduct.quantity += 1;
+    }
   } else {
-    cart.products.push({ product: productID });
+    cart.products.push({ product: productID, quantity: quantity || 1 });
   }
   await cart.save();
   response.send({ cart });
 };
 
-module.exports = { addProductToCart, getCart, setCartProductQuantity };
+module.exports = {
+  addProductToCart,
+  getCart,
+  setCartProductQuantity,
+  removeProductFromCart,
+};

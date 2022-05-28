@@ -4,7 +4,11 @@ const ProductModel = require("../models/Product");
 const getProducts = async (request, response) => {
   const { title } = request.query;
   let { categories } = request.query;
-  if (typeof categories !== "object") {
+  if (
+    typeof categories !== "object" &&
+    categories !== undefined &&
+    categories !== null
+  ) {
     categories = [categories];
   }
   //   console.log("--- categories", categories);
